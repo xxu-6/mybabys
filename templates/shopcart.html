@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="banner-bg w1200">
+        <h3>夏季清仓</h3>
+        <p>宝宝被子、宝宝衣服3折起</p>
+    </div>
+    <div class="cart w1200">
+        <div class="cart-table-th">
+            <div class="th th-chk">
+                <div class="select-all">
+                    <div class="cart-checkbox">
+                        <input class="check-all check" id="allCheckked" type="checkbox" value="true">
+                    </div>
+                    <label>&nbsp;&nbsp;全选</label>
+                </div>
+            </div>
+            <div class="th th-item">
+                <div class="th-inner">
+                    商品
+                </div>
+            </div>
+            <div class="th th-price">
+                <div class="th-inner">
+                    单价
+                </div>
+            </div>
+            <div class="th th-amount">
+                <div class="th-inner">
+                    数量
+                </div>
+            </div>
+            <div class="th th-sum">
+                <div class="th-inner">
+                    小计
+                </div>
+            </div>
+            <div class="th th-op">
+                <div class="th-inner">
+                    操作
+                </div>
+            </div>
+        </div>
+        <div class="OrderList">
+            <div class="order-content" id="list-cont">
+                {% for c in commodityInfos %}
+                    <ul class="item-content layui-clear">
+                        <li class="th th-chk">
+                            <div class="select-all">
+                                <div class="cart-checkbox">
+                                    <input class="CheckBoxShop check" id="" type="checkbox" num="all" name="select-all"
+                                           value="true">
+                                </div>
+                            </div>
+                        </li>
+                        <li class="th th-item">
+                            <div class="item-cont">
+                                <a href="javascript:;">
+                                    <img src="{{ c.img.url }}" alt=""></a>
+                                <div class="text">
+                                    <div class="title">{{ c.name }}</div>
+                                    <p><span>{{ c.sezes }}</span></p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="th th-price">
+                            <span class="th-su">{{ c.price }}</span>
+                        </li>
+                        <li class="th th-amount">
+                            <div class="box-btn layui-clear">
+                                <div class="less layui-btn">-</div>
+                                {% for k,v in commodityDict.items %}
+                                    {% if c.id == k %}
+                                        <input class="Quantity-input" type="" name="" value="{{ v }}"
+                                               disabled="disabled">
+                                    {% endif %}
+                                {% endfor %}
+                                <div class="add layui-btn">+</div>
+                            </div>
+                        </li>
+                        <li class="th th-sum">
+                            <span class="sum">0</span>
+                        </li>
+                        <li class="th th-op">
+                            <span class="dele-btn">删除</span>
+                            <p hidden="hidden">{{ c.id }}</p>
+                        </li>
+                    </ul>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="FloatBarHolder layui-clear">
+            <div class="th th-chk">
+                <div class="select-all">
+                    <div class="cart-checkbox">
+                        <input class="check-all check" id="" name="select-all" type="checkbox" value="true">
+                    </div>
+                    <label>&nbsp;&nbsp;已选<span class="Selected-pieces">0</span>件</label>
+                </div>
+            </div>
+            <div class="th batch-deletion">
+                <span class="batch-dele-btn">批量删除</span>
+                <p hidden="hidden" id="userId">{{ user.id }}</p>
+            </div>
+            <div class="th Settlement">
+                <button class="layui-btn" id="settlement">结算</button>
+            </div>
+            <div class="th total">
+                <p>应付：<span class="pieces-total">0</span></p>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block script %}
+    layui.config({
+        base: '{% static 'js/' %}'
+    }).use(['mm', 'jquery', 'element', 'car'], function () {
+        var mm = layui.mm, $ = layui.$, element = layui.element, car = layui.car;
+        car.init()
+        {# 页面加载完成后，执行的函数 #}
+        $(function (){
+            {# 总金额初始化为0 #}
+            var counts = 0;
+            {# 遍历所有class是sum的元素 #}
+            $(".sum").each(function (i ,e){
+                {# 商品单价 #}
+                var price = $('.th-su')[i].innerHTML;
+                {# 个数 #}
+                var quantity = $('.Quantity-input')[i].value;
+                {# 写入计算金额，并保留两位小数点 #}
+                e.innerHTML = (quantity * price).toFixed(2);
+                {# 将小计金额累加至总计金额 ，这里乘以1后再相加是为了避免字符串拼接 #}
+                counts = counts * 1 + e.innerHTML * 1;
+            });
+            {# 把计算好的总金额与符号￥进行拼接 #}
+            $('.pieces-total').text("￥" + counts.toFixed(2));
+        });
+        {# 为结算按钮绑定点击事件，id=settlement #}
+        $('#settlement').on('click', function (){
+            {# 获取总金额的文本内容 #}
+            var total = $('.pieces-total').text()
+            window.location = '{% url 'shopper:pays' %}?total=' + total;
+        })
+    });
+{% endblock script %}

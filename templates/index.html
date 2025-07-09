@@ -1,0 +1,179 @@
+{# 使用extends调用模板文件base.html #}
+{% extends 'base.html' %}
+{# 读取静态资源 #}
+{% load static %}
+{# 重写base.html中定义的结构content，在网页中添加广告的轮播功能 #}
+{% block content %}
+    {# 轮播图 #}
+    <div class="category-con">
+        <div class="category-banner">
+            <div class="w1200">
+                <img src="{% static 'img/banner1.jpg' %}">
+            </div>
+        </div>
+    </div>
+    {# 今日必抢 #}
+    <div class="floors">
+        <div class="sk">
+            <div class="sk_inner w1200">
+                <div class="sk_hd">
+                    <a href="javascript:;">
+                        <img src="{% static 'img/s_img1.jpg' %}">
+                    </a>
+                </div>
+                <div class="sk_bd">
+                    <div class="layui-carousel" id="test1">
+                        <div carousel-item>
+                            <div class="item-box">
+                                {# 使用for对commodityInfos进行遍历，变量commodityInfos共有8件商品 #}
+                                {# 这是第一个div获取前4件商品的信息，第二个item-box获取后4件商品信息 #}
+                                {% for c in commodityInfos %}
+                                    {% if forloop.counter < 5 %}
+                                        <div class="item">
+                                            {# % url 'commodity:detail' c.id % 是使用商品的主键字段生成对应的商品详细页的路由地址 #}
+                                            {# 点击商品就可以查看商品详情页 #}
+                                            <a href="{% url 'commodity:detail' c.id %}">
+                                                {# 获取主图的文件路径地址 #}
+                                                <img src="{{ c.img.url }}">
+                                            </a>
+                                            {# 商品名称 #}
+                                            <div class="title">{{ c.name }}</div>
+                                            <div class="price">
+                                                {# 折扣价，保留两位小数 #}
+                                                <span>￥{{ c.discount|floatformat:'2' }}</span>
+                                                {# 原价 #}
+                                                <del>￥{{ c.price|floatformat:'2' }}</del>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="item-box">
+                                {# 使用for对commodityInfos进行遍历，变量commodityInfos共有8件商品 #}
+                                {# 这是第一个div获取前4件商品的信息，第二个item-box获取后4件商品信息 #}
+                                {% for c in commodityInfos %}
+                                    {% if forloop.counter > 4 %}
+                                        <div class="item">
+                                            <a href="{% url 'commodity:detail' c.id %}">
+                                                {# 获取主图的文件路径地址 #}
+                                                <img src="{{ c.img.url }}">
+                                            </a>
+                                            <div class="title">{{ c.name }}</div>
+                                            <div class="price">
+                                                <span>￥{{ c.discount|floatformat:'2' }}</span>
+                                                <del>￥{{ c.price|floatformat:'2' }}</del>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {# 商品热销 #}
+    <div class="product-cont w1200" id="product-cont">
+        <div class="product-item product-item1 layui-clear">
+            <div class="left-title">
+                <h4><i>1F</i></h4>
+                <img src="{% static 'img/icon_gou.png' %}">
+                <h5>宝宝服饰</h5>
+            </div>
+            <div class="right-cont">
+                <a href="javascript:;" class="top-img">
+                    <img src="{% static 'img/img12.jpg' %}" alt="">
+                </a>
+                <div class="img-box">
+                    {% for c in clothes %}
+                        <a href="{% url 'commodity:detail' c.id %}">
+                            <img src="{{ c.img.url }}">
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="product-item product-item2 layui-clear">
+            <div class="left-title">
+                <h4><i>2F</i></h4>
+                <img src="{% static 'img/icon_gou.png' %}">
+                <h5>奶粉辅食</h5>
+            </div>
+            <div class="right-cont">
+                <a href="javascript:;" class="top-img">
+                    <img src="{% static 'img/img12.jpg' %}" alt="">
+                </a>
+                <div class="img-box">
+                    {% for f in food %}
+                        <a href="{% url 'commodity:detail' f.id %}">
+                            <img src="{{ f.img.url }}">
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="product-item product-item3 layui-clear">
+            <div class="left-title">
+                <h4><i>3F</i></h4>
+                <img src="{% static 'img/icon_gou.png' %}">
+                <h5>宝宝用品</h5>
+            </div>
+            <div class="right-cont">
+                <a href="javascript:;" class="top-img">
+                    <img src="{% static 'img/img12.jpg' %}" alt="">
+                </a>
+                <div class="img-box">
+                    {% for g in goods %}
+                        <a href="{% url 'commodity:detail' g.id %}">
+                            <img src="{{ g.img.url }}">
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block footer %}
+    <div class="footer">
+    <div class="ng-promise-box">
+        <div class="ng-promise w1200">
+            <p class="text">
+                <a class="icon1" href="javascript:;">7天无理由退换货</a>
+                <a class="icon2" href="javascript:;">满99元全场免邮</a>
+                <a class="icon3" style="margin-right: 0" href="javascript:;">100%品质保证</a>
+            </p>
+        </div>
+    </div>
+    <div class="mod_help w1200">
+        <p>
+            <a href="javascript:;">关于我们</a>
+            <span>|</span>
+            <a href="javascript:;">帮助中心</a>
+            <span>|</span>
+            <a href="javascript:;">售后服务</a>
+            <span>|</span>
+            <a href="javascript:;">母婴资讯</a>
+            <span>|</span>
+            <a href="javascript:;">关于货源</a>
+        </p>
+    </div>
+</div>
+{% endblock footer %}
+{# 编写今日必抢的页面轮播功能 #}
+{% block script %}
+    layui.config({
+        base: '{% static 'js/' %}'
+    }).use(['mm', 'carousel'], function () {
+        var carousel = layui.carousel,
+            mm = layui.mm;
+        var option = {
+            elem: '#test1'
+            , width: '100%'
+            , arrow: 'always'
+            , height: '298'
+            , indicator: 'none'
+        }
+        carousel.render(option);
+    });
+{% endblock script %}
