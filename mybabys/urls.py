@@ -25,7 +25,7 @@ urlpatterns = [
     path('', include(('index.urls','index'), namespace='index')),
     path('shopper', include(('shopper.urls','shopper'), namespace='shopper')),
     path('commodity', include(('commodity.urls','commodity'), namespace='commodity')),
-
+    #path('api/v1/commodity/',include(('commodity.urls', 'commodity'), namespace='commodity')),
 
 ]
 from index import views

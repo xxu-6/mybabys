@@ -51,6 +51,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'mybabys.middlewares.PrintHeaderMiddleware',
+    'mybabys.middlewares.CheckLoginMiddleware',
+    'mybabys.middlewares.PrintIPMiddleware',
 ]
 
 ROOT_URLCONF = "mybabys.urls"

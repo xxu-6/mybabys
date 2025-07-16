@@ -1,4 +1,5 @@
 # Django 快捷函数：用于渲染模板并返回 HTTP 响应
+from django.forms import model_to_dict
 from django.shortcuts import render
 
 # Django 分页工具：用于处理数据分页
@@ -81,6 +82,54 @@ def commodityView(request):
 
     return render(request, 'commodity.html', locals())
 
+
+# def commodityView(request):
+#     """
+#     商品列表API
+#     """
+#     # 从HTTP请求对象request获取请求参数types、search、sort、p
+#     types = request.GET.get('types', '')
+#     search = request.GET.get('search', '')
+#     sort = request.GET.get('sort', 'sold')
+#     p = request.GET.get('p', 1)
+#     # 从模型Type中查找所有分类写入变量context
+#     context = {'state': "success", 'msg': "获取成功", 'data': {}}
+#     context['data']['types'] = []
+#     firsts = Types.objects.values_list('firsts', flat=True).distinct()
+#     for f in firsts:
+#         t = Types.objects.filter(firsts=f).values_list('seconds', flat=True).all()
+#         context['data']['types'].append(dict(name=f, value=list(t)))
+#     # 根据请求参数对模型CommodityInfos进行数据查询，把查询结果存入变量cf中
+#     cf = CommodityInfos.objects.all()
+#     if types:
+#         cf = cf.filter(types=types)
+#     if sort:
+#         cf = cf.order_by("-" + sort)
+#     if search:
+#         cf = cf.filter(name__contains=search)
+#     result = []
+#     # 对查询结果cf进行遍历，每次遍历都会调用model_to_dict将模型字段转换为字典格式，并写入result
+#     # 如果模型字段格式为日期或文件，那么model_to_dict将会把字段转换为日期对象和文件对象，但是JsonResponse
+#     # 无法将日期对象和文件对象转换为JSON格式，所以对于特殊的模型字段，需要自行转换
+#     for c in cf.all():
+#         d = model_to_dict(c)
+#         d['create'] = c.create.strftime('%Y-%m-%d')
+#         d['img'] = c.img.url
+#         d['details'] = c.details.url
+#         result.append(d)
+#     # 调用分页函数，将列表result作为分页对象，得到分页数据，并写入context
+#     # 通过实例化JsonResponse将变量context作为响应数据
+#     pages, previous, nexts, pageCount = get_page_data(result, p)
+#     context['data']['commodityInfos'] = dict(
+#         data=pages,
+#         previous=previous,
+#         nexts=nexts,
+#         count=cf.count(),
+#         pageCount=pageCount)
+#     #  json_dumps_params={'ensure_ascii': False} 将Python对象序列化
+#     #  ensure_ascii为True会把非ASCII字节(中文)转换为Unicode编码
+#     #  为False会保留原始字符
+#     return JsonResponse(context, safe=False, json_dumps_params={'ensure_ascii': False})
 def detailView(request, id):
     """
     商品详情页视图函数
@@ -133,3 +182,30 @@ def collectView(request):
     # 使用HttpResponse实现：
     # HttpResponse(json.dumps(result), content_type='application/json')
     return JsonResponse(result)
+
+def get_page_data(ojb, p, page_count=10):
+    """
+    封装Django的内置分页功能
+    :param ojb: 分页对象，列表或者模型
+    :param p: 页数，获取当前页数对应的数据
+    :param page_count: 每页的数据量，默认一页10行数据
+    """
+    previous, next = 0, 0
+    # orphans:最后一页允许最少的剩余条数
+    ps = Paginator(ojb, page_count, 0)
+    try:
+        pages = ps.page(p)
+    except PageNotAnInteger:
+        # 如果参数p不是整型，返回第一页的数据
+        pages = ps.get_page(1)
+    except EmptyPage:
+        # 如果用户访问的页数大于实际页数，那么就返回最后一页的数据
+        pages = ps.get_page(ps.num_pages)
+    if pages.has_previous():
+        previous = pages.previous_page_number()
+    if pages.has_next():
+        next = pages.next_page_number()
+    count = ps.count
+    # 将分页对象转换为列表返回
+    pages = pages.object_list
+    return pages, count, previous, next
